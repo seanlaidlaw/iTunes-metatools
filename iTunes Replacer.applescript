@@ -1,3 +1,4 @@
+my merge_tracks()
 on merge_tracks()
 	tell application "iTunes"
 		
@@ -81,32 +82,37 @@ on merge_tracks()
 			
 			
 			
-			set old_fileName to (name of oldTrack_file as string)
+			set old_fileName to (name of oldTrack_file)
 			set extensionLess to ((characters 1 thru -4 of old_fileName) as string)
-			
+			log "extensionLess : " & extensionLess
+			(*
 			try
 				set neoNewTrack to ((newTrack_dir as text) & extensionLess & "m4a") as alias
 			on error
 				set neoNewTrack to ((newTrack_dir as text) & extensionLess & "mp3") as alias
 			end try
-			set cmd to "rm " & quoted form of POSIX path of (oldTrack_file as string)
+			*)
+			set cmd to "mv " & quoted form of POSIX path of (oldTrack_file as text) & " ~/.Trash"
 			do shell script cmd
 			set the name of file newTrack_file to old_fileName
+			log "post-rename newTrack_file : " & (name of file newTrack_file)
+			
+			--			set neoNewTrack to ((newTrack_dir as text) & (old_fileName as text)) as alias
 			
 			if oldTrack_dir is not newTrack_dir then
 				log "old dir : " & oldTrack_dir & " |  new dir : " & newTrack_dir
-				try
-					move file neoNewTrack to oldTrack_dir
-					
-				on error
-					set neoNewTrack to ((newTrack_dir as text) & extensionLess & "m4a") as alias
-					move file neoNewTrack to oldTrack_dir
-				end try
+				--try
+				move file newTrack_file to oldTrack_dir
+				
+				--on error
+				--	set neoNewTrack to ((newTrack_dir as text) & extensionLess & "m4a") as alias
+				--	move file neoNewTrack to oldTrack_dir
+				--end try
 				
 			end if
 			
 			
-			if oldTrack_ext is newTrack_ext then
+			if oldTrack_ext is equal to newTrack_ext then
 				log "same extension"
 				tell application "iTunes"
 					play oldTrack
@@ -115,17 +121,18 @@ on merge_tracks()
 				end tell
 			else
 				log "different  extension"
-				log "extension should be : " & newTrack_ext
+				log "extension should be : " & newTrack_ext & " | but is " & oldTrack_ext
 				tell application "iTunes"
 					try
 						play oldTrack
-						delay 0.25
-						pause oldTrack
+						--						delay 0.25
+						--						pause oldTrack
 					on error
 						tell application "Finder"
-							set neoTrackNameCut to ((characters 1 thru -4 of (name of neoNewTrack as text)) as text)
-							set name of file neoNewTrack to neoTrackNameCut & "mp3"
-							log "renamed name : " & neoTrackNameCut & "mp3"
+							set neoTrackNameCut to (characters 1 thru -4 of (old_fileName))
+							set name of file newTrack_file to (neoTrackNameCut & newTrack_ext as text)
+							--							log "renamed name : " & neoTrackNameCut & "mp3"
+							log "renamed name : " & (name of file newTrack_file)
 						end tell
 						tell application "iTunes"
 							play oldTrack
@@ -138,6 +145,7 @@ on merge_tracks()
 			end if
 		end tell
 		
+		
 		tell application "iTunes"
 			--Define new track and old track as being higher and lower bitrate respectively
 			if HigherBit is "2" then
@@ -149,6 +157,8 @@ on merge_tracks()
 			delete newTrack
 			log "Deleted : " & newTracknameforlog
 		end tell
+		
+		
 	end tell
 	log "Finished"
 end merge_tracks
