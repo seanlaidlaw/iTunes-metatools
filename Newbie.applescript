@@ -8,8 +8,7 @@ set minimalmetadata to true
 --if below is "true", the script will resize artwork of album of selected tracks to be no more than 500x500
 set resizeartwork to true
 --if the above option is true then set the below to the requested resolution (by default its 500x500)
-set resizeWidth to 500
-set resizeHeight to 500
+set resizeSize to 500
 
 (* Start of script *)
 
@@ -154,17 +153,17 @@ repeat with currentAlbum in albumsNames
 		write srcBytes to masterimgFile
 		close access masterimgFile
 		
-		if resizeartwork is true then
+		if resizeartwork then
 			set res to paragraphs of (do shell script "sips -g pixelHeight -g pixelWidth " & quoted form of POSIX path of masterimgName & " | grep pixel | cut -d':' -f 2 | cut -d ' ' -f 2")
 			set artHeight to item 1 of res
 			set artWidth to item 2 of res
 			log "...Old Res: " & artWidth & "x" & artHeight
 			
 			set resizeImage to false
-			if artWidth > resizeWidth then
+			if (artWidth as integer) > resizeSize then
 				set resizeImage to true
 			end if
-			if artHeight > resizeHeight then
+			if (artHeight as integer) > resizeSize then
 				set resizeImage to true
 			end if
 			
@@ -173,7 +172,7 @@ repeat with currentAlbum in albumsNames
 					tell application "Image Events"
 						launch
 						set this_image to open masterimgName
-						scale this_image to size 500
+						scale this_image to size resizeSize
 						save this_image with icon
 						close this_image
 					end tell
@@ -184,7 +183,10 @@ repeat with currentAlbum in albumsNames
 				set artHeight to item 1 of res
 				set artWidth to item 2 of res
 				log "...New Res: " & artWidth & "x" & artHeight
+			else
+				log "Not Resizing : image already at ideal size"
 			end if
+			
 		end if
 		
 		set masterHash to do shell script ("md5 " & quoted form of POSIX path of tempFolder & "master" & ext & " | grep -o \"................................$\"")
@@ -221,7 +223,7 @@ repeat with currentAlbum in albumsNames
 						end try
 					end try
 				else
-					tell application "iTunes" to tell artwork 1 of masterarttrack
+					tell application "iTunes" to tell artwork 1 of trk
 						set srcBytes to raw data
 						-- figure out the proper file extension
 						try
@@ -239,6 +241,7 @@ repeat with currentAlbum in albumsNames
 					--Save artowrk as image
 					tell application "Finder"
 						set imgName to ((tempFolder as text) & "artwork" & ext)
+						log imgName
 						try
 							set imgFile to open for access file imgName with write permission
 						on error number -49
