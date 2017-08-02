@@ -13,10 +13,11 @@ tell application "iTunes"
 			
 			-- convert the alac to wav
 			set mytrack_posix to (POSIX path of mytrack_file)
-			set track_convert to do shell script "/usr/local/bin/ffmpeg -y -loglevel panic -i '" & mytrack_posix & "' '" & mytrack_posix & ".wav'"
+			set track_convert to do shell script "/usr/local/bin/ffmpeg -y -loglevel panic -i \"" & mytrack_posix & "\" \"" & mytrack_posix & ".wav\""
 			
 			-- test the wav for lossless-ness
-			set track_test to do shell script "/usr/local/bin/lac '" & mytrack_posix & ".wav' | grep 'Result: Clean'"
+			set track_test_cmd to "/usr/local/bin/lac \"" & mytrack_posix & ".wav\" | grep \"Result: Clean\""
+			set track_test to do shell script track_test_cmd
 			if (track_test as string) is equal to "Result: Clean" then
 				log (mytrack_name as string) & " : Clean"
 			else
@@ -28,7 +29,7 @@ tell application "iTunes"
 				end try
 			end if
 			
-			do shell script "rm '" & mytrack_posix & ".wav'"
+			do shell script "rm \"" & mytrack_posix & ".wav\""
 		end if
 	end repeat
 end tell
