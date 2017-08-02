@@ -1,11 +1,14 @@
 #!/usr/bin/env osascript
 
 tell application "iTunes"
+	set counter to 0
 	repeat with myTrack in selection
 		set mybitrate to bit rate of myTrack
 		if mybitrate is greater than 361 then
+			set counter to counter + 1
 			-- Set file
 			set mytrack_name to (name of myTrack)
+			log (counter as string) & " - " & mytrack_name
 			set mytrack_file to (location of myTrack)
 			
 			-- convert the alac to wav
