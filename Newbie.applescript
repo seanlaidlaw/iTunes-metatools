@@ -287,16 +287,18 @@ end repeat
 if minimalmetadata is true then
 	tell application "iTunes"
 		repeat with myTrack in selection
-			if genre of myTrack is not "Classical" then
-				if album artist of myTrack is not equal to "" then
-					log "AA: " & (album artist of myTrack)
-					set album artist of myTrack to ""
-					log "AA: " & (album artist of myTrack)
-				end if
-				if composer of myTrack is not equal to "" then
-					log "Composer: " & (composer of myTrack)
-					set composer of myTrack to ""
-					log "Composer: " & (composer of myTrack)
+			if compilation of myTrack is false then
+				if genre of myTrack is not in {"Classical", "Soundtrack"} then
+					if album artist of myTrack is not equal to "" then
+						log "AA: " & (album artist of myTrack)
+						set album artist of myTrack to ""
+						log "AA: " & (album artist of myTrack)
+					end if
+					if composer of myTrack is not equal to "" then
+						log "Composer: " & (composer of myTrack)
+						set composer of myTrack to ""
+						log "Composer: " & (composer of myTrack)
+					end if
 				end if
 			end if
 			
