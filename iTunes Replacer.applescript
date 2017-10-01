@@ -1,24 +1,54 @@
 set keepHigherBitrateTrackMetadata to false
 
+-- This script usually determines old and new track based on bitrate (lower bitrate being older track)
+-- making this "true" however will override that and make it determine whats old and new based on the date added metadata
+set UseDateAddedInstead to true
+
 tell application "iTunes"
 	
-	--Define new track and old track as being higher and lower bitrate respectively
-	set select1 to first item in selection
-	set bit1 to bit rate of select1
-	set select2 to second item in selection
-	set bit2 to bit rate of select2
-	
-	if bit1 is less than bit2 then
-		log "old track is " & bit1 & "kbps ; and new Track is " & bit2 & "kbps."
-		set oldTrack to select1
-		set newTrack to select2
-		set HigherBit to "2"
-	else
-		log "old track is " & bit2 & "kbps ; and new Track is " & bit1 & "kbps."
-		set oldTrack to select2
-		set newTrack to select1
-		set HigherBit to "1"
+	if not UseDateAddedInstead then
+		--Define new track and old track as being higher and lower bitrate respectively
+		set select1 to first item in selection
+		set bit1 to bit rate of select1
+		set select2 to second item in selection
+		set bit2 to bit rate of select2
+		
+		if bit1 is less than bit2 then
+			log "old track is " & bit1 & "kbps ; and new Track is " & bit2 & "kbps."
+			set oldTrack to select1
+			set newTrack to select2
+			set HigherBit to "2"
+		else
+			log "old track is " & bit2 & "kbps ; and new Track is " & bit1 & "kbps."
+			set oldTrack to select2
+			set newTrack to select1
+			set HigherBit to "1"
+		end if
+		
+	else if UseDateAddedInstead then
+		--Define new track and old track as being oldest date added and newist date added respectively
+		set select1 to first item in selection
+		set date1 to date added of select1
+		set bit1 to bit rate of select1
+		set select2 to second item in selection
+		set date2 to date added of select2
+		set bit2 to bit rate of select2
+		
+		if date added of select1 is less than date added of select2 then
+			log "old track is " & bit1 & "kbps ; and new Track is " & bit2 & "kbps."
+			set oldTrack to select1
+			set newTrack to select2
+			set HigherBit to "2"
+		else
+			log "old track is " & bit2 & "kbps ; and new Track is " & bit1 & "kbps."
+			set oldTrack to select2
+			set newTrack to select1
+			set HigherBit to "1"
+		end if
+		
 	end if
+	
+	
 	
 	if not keepHigherBitrateTrackMetadata then
 		--Gather Metadata
@@ -45,20 +75,46 @@ tell application "iTunes"
 	end if
 	
 	--Redo this as items will have changed with previous actions
-	set select1 to first item in selection
-	set bit1 to bit rate of select1
-	set select2 to second item in selection
-	set bit2 to bit rate of select2
-	if bit1 is less than bit2 then
-		log "old track is " & bit1 & "kbps ; and new Track is " & bit2 & "kbps."
-		set oldTrack to select1
-		set newTrack to select2
-		set HigherBit to "2"
-	else
-		log "old track is " & bit2 & "kbps ; and new Track is " & bit1 & "kbps."
-		set oldTrack to select2
-		set newTrack to select1
-		set HigherBit to "1"
+	if not UseDateAddedInstead then
+		--Define new track and old track as being higher and lower bitrate respectively
+		set select1 to first item in selection
+		set bit1 to bit rate of select1
+		set select2 to second item in selection
+		set bit2 to bit rate of select2
+		
+		if bit1 is less than bit2 then
+			log "old track is " & bit1 & "kbps ; and new Track is " & bit2 & "kbps."
+			set oldTrack to select1
+			set newTrack to select2
+			set HigherBit to "2"
+		else
+			log "old track is " & bit2 & "kbps ; and new Track is " & bit1 & "kbps."
+			set oldTrack to select2
+			set newTrack to select1
+			set HigherBit to "1"
+		end if
+		
+	else if UseDateAddedInstead then
+		--Define new track and old track as being oldest date added and newist date added respectively
+		set select1 to first item in selection
+		set date1 to date added of select1
+		set bit1 to bit rate of select1
+		set select2 to second item in selection
+		set date2 to date added of select2
+		set bit2 to bit rate of select2
+		
+		if date added of select1 is less than date added of select2 then
+			log "old track is " & bit1 & "kbps ; and new Track is " & bit2 & "kbps."
+			set oldTrack to select1
+			set newTrack to select2
+			set HigherBit to "2"
+		else
+			log "old track is " & bit2 & "kbps ; and new Track is " & bit1 & "kbps."
+			set oldTrack to select2
+			set newTrack to select1
+			set HigherBit to "1"
+		end if
+		
 	end if
 	
 	
@@ -87,8 +143,8 @@ tell application "iTunes"
 		set extensionLess to ((characters 1 thru -4 of old_fileName) as string)
 		log "extensionLess : " & extensionLess
 		
-		--set cmd to "mv " & quoted form of POSIX path of (oldTrack_file as text) & " ~/.Trash"
-		set cmd to "rm " & quoted form of POSIX path of (oldTrack_file as text)
+		set cmd to "mv " & quoted form of POSIX path of (oldTrack_file as text) & " ~/.Trash"
+		--set cmd to "rm " & quoted form of POSIX path of (oldTrack_file as text)
 		do shell script cmd
 		set the name of file newTrack_file to old_fileName
 		set newTrack_file to ((newTrack_dir as string) & (old_fileName as string))
