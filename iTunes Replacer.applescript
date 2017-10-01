@@ -87,11 +87,13 @@ tell application "iTunes"
 		set extensionLess to ((characters 1 thru -4 of old_fileName) as string)
 		log "extensionLess : " & extensionLess
 		
-		set cmd to "mv " & quoted form of POSIX path of (oldTrack_file as text) & " ~/.Trash"
-		--set cmd to "rm " & quoted form of POSIX path of (oldTrack_file as text)
+		--set cmd to "mv " & quoted form of POSIX path of (oldTrack_file as text) & " ~/.Trash"
+		set cmd to "rm " & quoted form of POSIX path of (oldTrack_file as text)
 		do shell script cmd
 		set the name of file newTrack_file to old_fileName
+		set newTrack_file to ((newTrack_dir as string) & (old_fileName as string))
 		log "post-rename newTrack_file : " & (name of file newTrack_file)
+		
 		
 		
 		if oldTrack_dir is not newTrack_dir then
