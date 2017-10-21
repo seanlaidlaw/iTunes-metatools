@@ -1,5 +1,5 @@
 #!/usr/bin/env osascript
---version 0.4
+--version 0.5
 
 (* Options to change behavior of script *)
 
@@ -109,6 +109,7 @@ repeat with currentAlbum in albumsNames
 			end if
 		end repeat
 		
+		set masterarttrack to ""
 		repeat with trk in albumSongs
 			if (count of artwork of trk) is greater than 0 then
 				set masterarttrack to trk
@@ -125,10 +126,12 @@ repeat with currentAlbum in albumsNames
 			end if
 		end repeat
 		
+		
 		if (count of artwork of masterarttrack) is less than 1 then
 			log "No artwork to apply"
 			exit repeat
 		end if
+		
 		
 		log "Master: " & (name of masterarttrack as string)
 		
