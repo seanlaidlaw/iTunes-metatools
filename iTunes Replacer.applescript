@@ -169,26 +169,26 @@ tell application "iTunes"
 			end tell
 		else
 			log "different  extension"
-			log "extension should be : " & newTrack_ext & " | but is " & oldTrack_ext
+			log "extension should be : " & newTrack_ext & ", but is " & oldTrack_ext
 			tell application "iTunes"
 				try
 					play oldTrack
 					delay 0.25
 					pause oldTrack
-					
-				on error
-					log "iTunes can't play oldTrack in current form"
-					tell application "Finder"
-						set neoTrackNameCut to (characters 1 thru -4 of (old_fileName))
-						set name of file newTrack_file to (neoTrackNameCut & newTrack_ext as text)
-						log "renamed name : " & (name of file newTrack_file)
-					end tell
-					tell application "iTunes"
-						play oldTrack
-						delay 0.25
-						pause oldTrack
-					end tell
 				end try
+				
+				--renaming file extension to match what the file with play with
+				tell application "Finder"
+					set neoTrackNameCut to (characters 1 thru -4 of (old_fileName))
+					set name of file newTrack_file to (neoTrackNameCut & newTrack_ext as text)
+					log "renamed name : " & (name of file newTrack_file)
+				end tell
+				tell application "iTunes"
+					play oldTrack
+					delay 0.25
+					pause oldTrack
+				end tell
+				--end try
 			end tell
 			
 		end if
