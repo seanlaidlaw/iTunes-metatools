@@ -1,4 +1,5 @@
 #!/usr/bin/env osascript
+--version 0.5
 
 tell application "iTunes"
 	set counter to 0

@@ -1,3 +1,6 @@
+#!/usr/bin/env osascript
+--version 0.7
+
 set keepHigherBitrateTrackMetadata to false
 
 -- This script usually determines old and new track based on bitrate (lower bitrate being older track)

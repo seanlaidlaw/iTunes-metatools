@@ -1,4 +1,5 @@
 #!/usr/bin/env osascript
+--version 0.4
 
 (* Options to change behavior of script *)
 

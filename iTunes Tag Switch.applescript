@@ -1,3 +1,6 @@
+#!/usr/bin/env osascript
+--version 0.3
+
 tell application "iTunes"
 	
 	--Define new track and old track as being oldest date added and newist date added respectively

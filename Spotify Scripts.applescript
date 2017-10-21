@@ -1,3 +1,6 @@
+#!/usr/bin/env osascript
+--version 0.1
+
 display dialog "Sends metadata from current track in Spotify to selected track in iTunes" with icon note buttons {"Art", "All Tags", "Cancel"} default button "Art"
 
 
