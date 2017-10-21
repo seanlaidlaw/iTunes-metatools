@@ -1,11 +1,14 @@
 tell application "iTunes"
 	
-	--Define new track and old track as being higher and lower bitrate respectively
+	--Define new track and old track as being oldest date added and newist date added respectively
 	set select1 to first item in selection
+	set date1 to date added of select1
 	set bit1 to bit rate of select1
 	set select2 to second item in selection
+	set date2 to date added of select2
 	set bit2 to bit rate of select2
-	if bit1 is less than bit2 then
+	
+	if date added of select1 is less than date added of select2 then
 		log "old track is " & bit1 & "kbps ; and new Track is " & bit2 & "kbps."
 		set oldTrack to select1
 		set newTrack to select2
@@ -16,6 +19,8 @@ tell application "iTunes"
 		set newTrack to select1
 		set HigherBit to "1"
 	end if
+	
+	
 	
 	
 	
