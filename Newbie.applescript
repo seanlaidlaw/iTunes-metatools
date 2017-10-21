@@ -1,43 +1,43 @@
 #!/usr/bin/env osascript
---version 0.5
+--version 0.6
 
 (* Options to change behavior of script *)
 
 --if below is "true", the script will remove data from composer & album artist tags from non-classical music
-set minimalmetadata to true
+set minimalMetadata to true
 
 --if below is "true", the script will resize artwork of album of selected tracks to be no more than 500x500
-set resizeartwork to true
+set resizeArtwork to true
 --if the above option is true then set the below to the requested resolution (by default its 500x500)
 set resizeSize to 500
 
 (* Start of script *)
 
 tell application "iTunes"
-	repeat with myTrack in selection
-		set myartist to artist of myTrack
-		set artistSongs to (every track of library playlist 1 whose artist is myartist)
+	repeat with trk in selection
+		set masterArtist to artist of trk
+		set artistSongs to (every track of library playlist 1 whose artist is masterArtist)
 		
 		set masterGenre to ""
 		repeat with trk in artistSongs
 			log name of trk as string
 			if (genre of trk) is not equal to "" then
 				set masterGenre to genre of trk
-				set masterartisttrack to trk
+				set masterArtist_track to trk
 				exit repeat
 			end if
 		end repeat
 		
 		repeat with trk in artistSongs
 			if (genre of trk) is not equal to "" then
-				if date added of trk is less than date added of masterartisttrack then
+				if date added of trk is less than date added of masterArtist_track then
 					set masterGenre to genre of trk
-					set masterartisttrack to trk
+					set masterArtist_track to trk
 				end if
 			end if
 		end repeat
 		if masterGenre is equal to "" then exit repeat
-		log "Artist Genre : " & masterGenre & " | from : " & (name of masterartisttrack as string)
+		log "Artist Genre : " & masterGenre & " | from : " & (name of masterArtist_track as string)
 		
 		repeat with trk in artistSongs
 			if (genre of trk) is not equal to masterGenre then
@@ -51,9 +51,9 @@ end tell
 
 tell application "iTunes"
 	set albumsWithDups to {}
-	repeat with myTrack in selection
-		if album of myTrack is not "" then
-			set inputdups to (my encode_text(((artist of myTrack as string)), true, true) & "@" & (my encode_text((album of myTrack as string), true, true)))
+	repeat with trk in selection
+		if album of trk is not "" then
+			set inputdups to (my encode_text(((artist of trk as string)), true, true) & "@" & (my encode_text((album of trk as string), true, true)))
 			set albumsWithDups to albumsWithDups & inputdups
 		end if
 	end repeat
@@ -74,45 +74,45 @@ repeat with currentAlbum in albumsNames
 	
 	set oldDelims to AppleScript's text item delimiters
 	set AppleScript's text item delimiters to {"@"}
-	set myartist to (first text item of currentAlbum) as text
-	set myalbum to (second text item of currentAlbum) as text
+	set masterArtist to (first text item of currentAlbum) as text
+	set myAlbum to (second text item of currentAlbum) as text
 	set AppleScript's text item delimiters to oldDelims
-	set myartist to decode_text(myartist)
-	set myalbum to decode_text(myalbum)
-	log myartist & "_" & myalbum & "_START"
+	set masterArtist to decode_text(masterArtist)
+	set myAlbum to decode_text(myAlbum)
+	log masterArtist & "_" & myAlbum & "_START"
 	
 	
 	tell application "iTunes"
-		set albumSongs to (every track of library playlist 1 whose album is myalbum and artist is myartist)
+		set albumSongs to (every track of library playlist 1 whose album is myAlbum and artist is masterArtist)
 		
-		set masterdiscc to 0
+		set masterDiscc to 0
 		repeat with trk in albumSongs
 			if (disc count of trk) is greater than 0 then
-				set masterdiscc to disc count of trk
+				set masterDiscc to disc count of trk
 				exit repeat
 			end if
 		end repeat
 		
-		set masterarttrackc to 0
+		set masterTrackc to 0
 		repeat with trk in albumSongs
 			if (track count of trk) is greater than 0 then
-				set masterarttrackc to track count of trk
+				set masterTrackc to track count of trk
 				exit repeat
 			end if
 		end repeat
 		
-		set masterartyear to 0
+		set masterYear to 0
 		repeat with trk in albumSongs
 			if (year of trk) is greater than 0 then
-				set masterartyear to year of trk
+				set masterYear to year of trk
 				exit repeat
 			end if
 		end repeat
 		
-		set masterarttrack to ""
+		set masterArt_track to ""
 		repeat with trk in albumSongs
 			if (count of artwork of trk) is greater than 0 then
-				set masterarttrack to trk
+				set masterArt_track to trk
 				exit repeat
 			end if
 		end repeat
@@ -120,23 +120,23 @@ repeat with currentAlbum in albumsNames
 		repeat with trk in albumSongs
 			log (name of trk as string)
 			if (count of artwork of trk) is greater than 0 then
-				if date added of trk is less than date added of masterarttrack then
-					set masterarttrack to trk
+				if date added of trk is less than date added of masterArt_track then
+					set masterArt_track to trk
 				end if
 			end if
 		end repeat
 		
 		
-		if (count of artwork of masterarttrack) is less than 1 then
+		if (count of artwork of masterArt_track) is less than 1 then
 			log "No artwork to apply"
 			exit repeat
 		end if
 		
 		
-		log "Master: " & (name of masterarttrack as string)
+		log "Master: " & (name of masterArt_track as string)
 		
-		--Set masterarttrack album artwork
-		tell application "iTunes" to tell artwork 1 of masterarttrack
+		--Set masterArt_track album artwork
+		tell application "iTunes" to tell artwork 1 of masterArt_track
 			set srcBytes to raw data
 			-- figure out the proper file extension
 			try
@@ -150,15 +150,15 @@ repeat with currentAlbum in albumsNames
 			end try
 		end tell
 		
-		set masterimgName to ((tempFolder as text) & "master" & ext)
-		set masterimgFile to open for access file masterimgName with write permission
+		set masterImg_name to ((tempFolder as text) & "master" & ext)
+		set masterImg_file to open for access file masterImg_name with write permission
 		
-		set eof masterimgFile to 0
-		write srcBytes to masterimgFile
-		close access masterimgFile
+		set eof masterImg_file to 0
+		write srcBytes to masterImg_file
+		close access masterImg_file
 		
-		if resizeartwork then
-			set res to paragraphs of (do shell script "sips -g pixelHeight -g pixelWidth " & quoted form of POSIX path of masterimgName & " | grep pixel | cut -d':' -f 2 | cut -d ' ' -f 2")
+		if resizeArtwork then
+			set res to paragraphs of (do shell script "sips -g pixelHeight -g pixelWidth " & quoted form of POSIX path of masterImg_name & " | grep pixel | cut -d':' -f 2 | cut -d ' ' -f 2")
 			set artHeight to item 1 of res
 			set artWidth to item 2 of res
 			log "...Old Res: " & artWidth & "x" & artHeight
@@ -175,14 +175,14 @@ repeat with currentAlbum in albumsNames
 				tell application "Finder"
 					tell application "Image Events"
 						launch
-						set this_image to open masterimgName
-						scale this_image to size resizeSize
-						save this_image with icon
-						close this_image
+						set masterImg to open masterImg_name
+						scale masterImg to size resizeSize
+						save masterImg with icon
+						close masterImg
 					end tell
 				end tell
 				
-				set res to paragraphs of (do shell script "sips -g pixelHeight -g pixelWidth " & quoted form of POSIX path of masterimgName & " | grep pixel | cut -d':' -f 2 | cut -d ' ' -f 2")
+				set res to paragraphs of (do shell script "sips -g pixelHeight -g pixelWidth " & quoted form of POSIX path of masterImg_name & " | grep pixel | cut -d':' -f 2 | cut -d ' ' -f 2")
 				
 				set artHeight to item 1 of res
 				set artWidth to item 2 of res
@@ -209,14 +209,14 @@ repeat with currentAlbum in albumsNames
 					set tempFolder to ((((path to me) as text) & "::TempFolder") as alias)
 				end try
 				
-				if masterdiscc is not 0 then set disc count of trk to masterdiscc
-				if masterarttrackc is not 0 then set track count of trk to masterarttrackc
-				if masterarttrackc is not 0 then set year of trk to masterartyear
+				if masterDiscc is not 0 then set disc count of trk to masterDiscc
+				if masterTrackc is not 0 then set track count of trk to masterTrackc
+				if masterTrackc is not 0 then set year of trk to masterYear
 				
 				if (count of artwork of trk) is not greater than 0 then
-					set myArt to (read file (masterimgName) as picture)
+					set masterImg_read to (read file (masterImg_name) as picture)
 					try
-						set data of artwork 1 of trk to myArt
+						set data of artwork 1 of trk to masterImg_read
 					on error
 						log "error setting artwork of " & (name of trk)
 						try
@@ -257,18 +257,18 @@ repeat with currentAlbum in albumsNames
 						write srcBytes to imgFile
 						close access imgFile
 					end tell
-					set myHash to do shell script ("md5 " & quoted form of POSIX path of tempFolder & "artwork" & ext & " | grep -o \"................................$\"")
+					set imgHash to do shell script ("md5 " & quoted form of POSIX path of tempFolder & "artwork" & ext & " | grep -o \"................................$\"")
 					
 					
 					
-					if (myHash as text) is equal to (masterHash as text) then
+					if (imgHash as text) is equal to (masterHash as text) then
 						log "same hash - " & (name of trk as text)
 						
 					else
-						log "DIFF_" & (name of trk) & ": " & myHash
-						set myArt to (read file (masterimgName) as picture)
+						log "DIFF_" & (name of trk) & ": " & imgHash
+						set masterImg_read to (read file (masterImg_name) as picture)
 						try
-							set data of artwork 1 of trk to myArt
+							set data of artwork 1 of trk to masterImg_read
 						on error
 							log "error setting artwork of " & (name of trk)
 							try
@@ -288,25 +288,25 @@ repeat with currentAlbum in albumsNames
 	end tell
 end repeat
 
-if minimalmetadata is true then
+if minimalMetadata is true then
 	tell application "iTunes"
-		repeat with myTrack in selection
-			if compilation of myTrack is false then
-				if genre of myTrack is not in {"Classical", "Soundtrack"} then
-					if album artist of myTrack is not equal to "" then
-						log "AA: " & (album artist of myTrack)
-						set album artist of myTrack to ""
-						log "AA: " & (album artist of myTrack)
+		repeat with trk in selection
+			if compilation of trk is false then
+				if genre of trk is not in {"Classical", "Soundtrack"} then
+					if album artist of trk is not equal to "" then
+						log "AA: " & (album artist of trk)
+						set album artist of trk to ""
+						log "AA: " & (album artist of trk)
 					end if
-					if composer of myTrack is not equal to "" then
-						log "Composer: " & (composer of myTrack)
-						set composer of myTrack to ""
-						log "Composer: " & (composer of myTrack)
+					if composer of trk is not equal to "" then
+						log "Composer: " & (composer of trk)
+						set composer of trk to ""
+						log "Composer: " & (composer of trk)
 					end if
 				end if
 			end if
 			
-			set myComment to (comment of myTrack as text)
+			set myComment to (comment of trk as text)
 			if myComment is not equal to "" then
 				if (count paragraphs of myComment) is greater than 1 then
 					set ASTID to AppleScript's text item delimiters
@@ -316,7 +316,7 @@ if minimalmetadata is true then
 					set AppleScript's text item delimiters to ASTID
 					
 					if second_comment is not equal to "" then
-						set comment of myTrack to first_comment
+						set comment of trk to first_comment
 					end if
 					
 				else
@@ -331,7 +331,6 @@ end if
 
 
 --SUBROUTINES
-
 on write_to_file(this_data, target_file, append_data) -- (string, file path as string, boolean)
 	try
 		set the target_file to the target_file as text
