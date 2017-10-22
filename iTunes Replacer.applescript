@@ -1,5 +1,5 @@
 #!/usr/bin/env osascript
---version 0.7
+--version 0.8
 
 set keepHigherBitrateTrackMetadata to false
 
@@ -171,6 +171,13 @@ tell application "iTunes"
 				pause oldTrack
 			end tell
 		else
+			try
+				tell application "iTunes"
+					play oldTrack
+					delay 0.25
+					pause oldTrack
+				end tell
+			end try
 			log "different  extension"
 			log "extension should be : " & newTrack_ext & ", but is " & oldTrack_ext
 			tell application "iTunes"
@@ -212,4 +219,13 @@ tell application "iTunes"
 	
 	
 end tell
+
+try
+	tell application "iTunes"
+		play oldTrack
+		delay 0.25
+		pause oldTrack
+	end tell
+end try
+
 log "Finished"
