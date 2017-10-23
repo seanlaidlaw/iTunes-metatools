@@ -1,5 +1,5 @@
 #!/usr/bin/env osascript
---version 0.6
+--version 0.7
 
 (* Options to change behavior of script *)
 
@@ -303,26 +303,56 @@ if minimalMetadata is true then
 						set composer of trk to ""
 						log "Composer: " & (composer of trk)
 					end if
+					if lyrics of trk is not equal to "" then
+						log "Lyrics: " & (lyrics of trk)
+						set lyrics of trk to ""
+						log "Lyrics: " & (lyrics of trk)
+					end if
 				end if
 			end if
 			
+			
 			set myComment to (comment of trk as text)
-			if myComment is not equal to "" then
-				if (count paragraphs of myComment) is greater than 1 then
-					set ASTID to AppleScript's text item delimiters
-					set AppleScript's text item delimiters to {linefeed}
-					set first_comment to first text item of myComment
-					set second_comment to second text item of myComment
-					set AppleScript's text item delimiters to ASTID
-					
-					if second_comment is not equal to "" then
-						set comment of trk to first_comment
-					end if
-					
-				else
-					log "Para: " & (count paragraphs of myComment)
+			
+			set dateadded to ""
+			set ivolumeadjust to ""
+			repeat with para in paragraphs of myComment
+				if para starts with "Date Added:" then
+					set dateadded to para
 				end if
+				if para starts with "Adjusted by iVolume" then
+					set ivolumeadjust to para
+				end if
+			end repeat
+			
+			
+			if dateadded is equal to "" then
+				set dateadded to (date added of trk) as date
+				tell application "Finder"
+					set shortdate to (((year of dateadded as integer) as string) & "-" & ((month of dateadded as integer) as string) & "-" & ((day of dateadded as integer) as string) & "T" & ((hours of dateadded) as string) & ":" & ((minutes of dateadded) as string) & ":" & ((seconds of dateadded) as string) & "Z")
+					set dateadded to ("Date Added: " & shortdate as string) as string
+				end tell
 			end if
+			
+			
+			if ivolumeadjust is not equal to "" then
+				set newcomment to (dateadded & return & ivolumeadjust) as string
+			else
+				set newcomment to dateadded as string
+			end if
+			
+			log newcomment
+			if comment of trk is equal to newcomment then
+				log "no change needed"
+			else if comment of trk is equal to "" then
+				log "adding comment : " & newcomment
+			else
+				log "changing comment : '" & (comment of trk as string) & "' to '" & newcomment & "'"
+			end if
+			
+			set comment of trk to newcomment
+			
+			
 		end repeat
 	end tell
 end if
