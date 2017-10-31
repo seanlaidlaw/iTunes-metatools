@@ -1,5 +1,5 @@
 #!/usr/bin/env osascript
---version 0.8
+--version 0.9
 
 set keepHigherBitrateTrackMetadata to false
 
@@ -69,6 +69,7 @@ tell application "iTunes"
 		set lyrics of newTrack to (lyrics of oldTrack as text)
 		set genre of newTrack to (genre of oldTrack as text)
 		set composer of newTrack to (composer of oldTrack as text)
+		set comment of newTrack to (comment of oldTrack as text)
 		set bpm of newTrack to (bpm of oldTrack as text)
 		
 		try
@@ -191,7 +192,6 @@ tell application "iTunes"
 				tell application "Finder"
 					set neoTrackNameCut to (characters 1 thru -4 of (old_fileName))
 					set name of file newTrack_file to (neoTrackNameCut & newTrack_ext as text)
-					log "renamed name : " & (name of file newTrack_file)
 				end tell
 				tell application "iTunes"
 					play oldTrack
