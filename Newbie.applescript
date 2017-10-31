@@ -1,5 +1,5 @@
 #!/usr/bin/env osascript
---version 0.7
+--version 0.8
 
 (* Options to change behavior of script *)
 
@@ -329,7 +329,18 @@ if minimalMetadata is true then
 			if dateadded is equal to "" then
 				set dateadded to (date added of trk) as date
 				tell application "Finder"
-					set shortdate to (((year of dateadded as integer) as string) & "-" & ((month of dateadded as integer) as string) & "-" & ((day of dateadded as integer) as string) & "T" & ((hours of dateadded) as string) & ":" & ((minutes of dateadded) as string) & ":" & ((seconds of dateadded) as string) & "Z")
+					set mymonth to (month of dateadded as integer)
+					if mymonth is less than 10 then set mymonth to "0" & (mymonth as string)
+					set myday to (day of dateadded as integer)
+					if myday is less than 10 then set myday to "0" & (myday as string)
+					set myhour to (hours of dateadded as integer)
+					if myhour is less than 10 then set myhour to "0" & (myhour as string)
+					set mymins to (minutes of dateadded as integer)
+					if mymins is less than 10 then set mymins to "0" & (mymins as string)
+					set mysecs to (seconds of dateadded as integer)
+					if mysecs is less than 10 then set mysecs to "0" & (mysecs as string)
+					
+					set shortdate to (((year of dateadded as integer) as string) & "-" & mymonth & "-" & myday & "T" & myhour & ":" & mymins & ":" & mysecs & "Z")
 					set dateadded to ("Date Added: " & shortdate as string) as string
 				end tell
 			end if
@@ -352,6 +363,34 @@ if minimalMetadata is true then
 			
 			set comment of trk to newcomment
 			
+			
+			
+			
+			--if track name contains "feat" then make the F lowercase
+			if name of trk contains "feat." then
+				set newname to name of trk
+				set newname to my replace_chars(newname, "Feat.", "feat.")
+				set name of trk to newname
+			end if
+			
+			
+			--if track name begins with a space then remove the space
+			if name of trk begins with " " then
+				set newname to name of trk
+				repeat while newname begins with " "
+					set newname to ((characters 2 thru -1 of newname) as string)
+				end repeat
+				set name of trk to newname
+			end if
+			
+			--if track name contains "  " then replace with " "
+			if name of trk contains "  " then
+				set newname to name of trk
+				repeat while newname contains "  "
+					set newname to my replace_chars(newname, "  ", " ")
+				end repeat
+				set name of trk to newname
+			end if
 			
 		end repeat
 	end tell
