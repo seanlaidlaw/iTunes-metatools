@@ -1,5 +1,5 @@
 #!/usr/bin/env osascript
---version 1.0
+--version 1.1
 
 (* Options to change behavior of script *)
 
@@ -94,12 +94,16 @@ repeat with currentAlbum in albumsNames
 		end repeat
 		
 		set masterTrackc to 0
-		repeat with trk in albumSongs
-			if (track count of trk) is greater than 0 then
-				set masterTrackc to track count of trk
-				exit repeat
-			end if
-		end repeat
+		if masterDiscc is 1 then
+			repeat with trk in albumSongs
+				if (disc number of trk) is 1 then
+					if (track count of trk) is greater than 0 then
+						set masterTrackc to track count of trk
+						exit repeat
+					end if
+				end if
+			end repeat
+		end if
 		
 		set masterYear to 0
 		repeat with trk in albumSongs
@@ -131,9 +135,9 @@ repeat with currentAlbum in albumsNames
 				repeat with para in paragraphs of (comment of album_trk as text)
 					if para starts with "Date Added:" then
 						set dateadded to para
-			end if
-		end repeat
-		
+					end if
+				end repeat
+				
 				if dateadded is not "" then
 					set dateadded to ((characters 13 thru -1 of dateadded) as string)
 					set dateadded to (my replace_chars(dateadded, "Z", ""))
@@ -234,8 +238,14 @@ repeat with currentAlbum in albumsNames
 				end try
 				
 				if masterDiscc is not 0 then set disc count of trk to masterDiscc
-				if masterTrackc is not 0 then set track count of trk to masterTrackc
-				if masterTrackc is not 0 then set year of trk to masterYear
+				if masterDiscc is 1 then set disc number of trk to masterDiscc
+				
+				if masterTrackc is not 0 then
+					set track count of trk to masterTrackc
+				end if
+				
+				if masterYear is not 0 then set year of trk to masterYear
+				
 				
 				if (count of artwork of trk) is not greater than 0 then
 					set masterImg_read to (read file (masterImg_name) as picture)
