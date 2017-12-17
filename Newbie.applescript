@@ -1,15 +1,15 @@
 #!/usr/bin/env osascript
---version 0.9
+--version 1.0
 
 (* Options to change behavior of script *)
 
 --if below is "true", the script will remove data from composer & album artist tags from non-classical music
 set minimalMetadata to true
 
---if below is "true", the script will resize artwork of album of selected tracks to be no more than 500x500
+--if below is "true", the script will resize artwork of album of selected tracks to be no more than 640x640
 set resizeArtwork to true
---if the above option is true then set the below to the requested resolution (by default its 500x500)
-set resizeSize to 500
+--if the above option is true then set the below to the requested resolution (by default its 640x640)
+set resizeSize to 640
 
 (* Start of script *)
 
@@ -113,18 +113,42 @@ repeat with currentAlbum in albumsNames
 		repeat with trk in albumSongs
 			if (count of artwork of trk) is greater than 0 then
 				set masterArt_track to trk
+				set masterArt_track_date to (date added of masterArt_track)
 				exit repeat
 			end if
 		end repeat
 		
-		repeat with trk in albumSongs
-			log (name of trk as string)
-			if (count of artwork of trk) is greater than 0 then
-				if date added of trk is less than date added of masterArt_track then
-					set masterArt_track to trk
+		repeat with album_trk in albumSongs
+			log (name of album_trk as string)
+			if (count of artwork of album_trk) is greater than 0 then
+				--imported all at once can give tracks the same date added which confuses script
+				
+				if (date added of album_trk) < masterArt_track_date then
+					set masterArt_track to album_trk
 				end if
+				
+				set dateadded to ""
+				repeat with para in paragraphs of (comment of album_trk as text)
+					if para starts with "Date Added:" then
+						set dateadded to para
 			end if
 		end repeat
+		
+				if dateadded is not "" then
+					set dateadded to ((characters 13 thru -1 of dateadded) as string)
+					set dateadded to (my replace_chars(dateadded, "Z", ""))
+					set dateadded to (my replace_chars(dateadded, "T", " "))
+					set dateadded to my dateObject(dateadded)
+					if dateadded < masterArt_track_date then
+						set masterArt_track to album_trk
+						set masterArt_track_date to dateadded
+					end if
+				end if
+			end if
+			
+		end repeat
+		
+		
 		
 		
 		if (count of artwork of masterArt_track) is less than 1 then
@@ -415,6 +439,27 @@ on write_to_file(this_data, target_file, append_data) -- (string, file path as s
 		return false
 	end try
 end write_to_file
+
+on dateObject(theDateString)
+	set myDate to current date
+	set {oti, text item delimiters} to {text item delimiters, " "}
+	set {dateString, timeString} to text items of theDateString
+	set text item delimiters to ":"
+	set {hrs, mins, scs} to text items of timeString
+	
+	set hrsMins to hrs * hours + mins * minutes + scs
+	
+	set {yr, Mnth, dy} to words of dateString
+	
+	set the time of myDate to hrsMins
+	set the year of myDate to yr
+	set the month of myDate to Mnth
+	set the day of myDate to dy
+	
+	set text item delimiters to oti
+	return myDate
+end dateObject
+
 
 on replace_chars(this_text, search_string, replacement_string)
 	set AppleScript's text item delimiters to the search_string
