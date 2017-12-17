@@ -130,6 +130,7 @@ tell application "iTunes"
 	
 	set oldTrack_dir to (do shell script "dirname " & quoted form of (POSIX path of oldTrack_file)) & "/"
 	set oldTrack_dir to oldTrack_dir as Unicode text
+	set oldTrack_dir_posix to oldTrack_dir
 	set oldTrack_dir to (POSIX file oldTrack_dir) as alias
 	
 	set newTrack_dir to (do shell script "dirname " & quoted form of (POSIX path of newTrack_file)) & "/"
@@ -191,7 +192,17 @@ tell application "iTunes"
 				--renaming file extension to match what the file with play with
 				tell application "Finder"
 					set neoTrackNameCut to (characters 1 thru -4 of (old_fileName))
+					try
 					set name of file newTrack_file to (neoTrackNameCut & newTrack_ext as text)
+					on error
+						
+						
+						set renameCmd to "cd \"" & oldTrack_dir_posix & "\"; mv \"" & neoTrackNameCut & oldTrack_ext & "\" \"" & neoTrackNameCut & newTrack_ext & "\""
+						log "used shell cmd"
+						
+						display notification "used shell cmd"
+						do shell script renameCmd
+					end try
 				end tell
 				tell application "iTunes"
 					play oldTrack
