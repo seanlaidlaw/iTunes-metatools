@@ -1,5 +1,5 @@
 #!/usr/bin/env osascript
---version 0.9
+--version 1.1
 
 set keepHigherBitrateTrackMetadata to false
 
@@ -8,6 +8,8 @@ set keepHigherBitrateTrackMetadata to false
 set UseDateAddedInstead to true
 
 tell application "iTunes"
+	
+	if (count of items in selection) is not 2 then return
 	
 	if not UseDateAddedInstead then
 		--Define new track and old track as being higher and lower bitrate respectively
@@ -51,6 +53,15 @@ tell application "iTunes"
 		
 	end if
 	
+	if (name of select1) is not equal to (name of select2) then
+		set question to display dialog "Names not identical, continue?" buttons {"Replace Anyway", "Cancel"} default button "Cancel"
+		set answer to button returned of question
+		
+		if answer is "Cancel" then
+			
+			exit repeat
+		end if
+	end if
 	
 	
 	if not keepHigherBitrateTrackMetadata then
@@ -193,7 +204,7 @@ tell application "iTunes"
 				tell application "Finder"
 					set neoTrackNameCut to (characters 1 thru -4 of (old_fileName))
 					try
-					set name of file newTrack_file to (neoTrackNameCut & newTrack_ext as text)
+						set name of file newTrack_file to (neoTrackNameCut & newTrack_ext as text)
 					on error
 						
 						
@@ -236,7 +247,10 @@ try
 		play oldTrack
 		delay 0.25
 		pause oldTrack
+		set loved of oldTrack to true
 	end tell
 end try
+
+
 
 log "Finished"
