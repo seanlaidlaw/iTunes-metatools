@@ -1,5 +1,5 @@
 #!/usr/bin/env osascript
---version 0.8
+--version 0.9
 
 (* Options to change behavior of script *)
 
@@ -140,7 +140,7 @@ repeat with currentAlbum in albumsNames
 			set srcBytes to raw data
 			-- figure out the proper file extension
 			try
-				if format is Çclass PNG È then
+				if format is class PNG then
 					set ext to ".png"
 				else
 					set ext to ".jpg"
@@ -231,7 +231,7 @@ repeat with currentAlbum in albumsNames
 						set srcBytes to raw data
 						-- figure out the proper file extension
 						try
-							if format is Çclass PNG È then
+							if format is class PNG then
 								set ext to ".png"
 							else
 								set ext to ".jpg"
@@ -403,10 +403,8 @@ end if
 on write_to_file(this_data, target_file, append_data) -- (string, file path as string, boolean)
 	try
 		set the target_file to the target_file as text
-		set the open_target_file to Â
-			open for access file target_file with write permission
-		if append_data is false then Â
-			set eof of the open_target_file to 0
+		set the open_target_file to open for access file target_file with write permission
+		if append_data is false then set eof of the open_target_file to 0
 		write this_data to the open_target_file starting at eof
 		close access the open_target_file
 		return true
@@ -516,8 +514,8 @@ on removeDuplicates(lst)
 			-- note: minor speed optimisation when removing duplicates 
 			-- from ordered lists: assemble new list in reverse so 
 			-- 'contains' operator checks most recent item first
-			if k's res does not contain {itm} then Â
-				set k's res's beginning to itm
+			if k's res does not contain {itm} then set k's res's beginning to itm
+			
 		end repeat
 		return k's res's reverse
 	on error eMsg number eNum
