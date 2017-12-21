@@ -1,5 +1,5 @@
 #!/usr/bin/env osascript
---version 1.1
+--version 1.2
 
 (* Options to change behavior of script *)
 
@@ -16,6 +16,7 @@ set resizeSize to 640
 tell application "iTunes"
 	repeat with trk in selection
 		set masterArtist to artist of trk
+		set masterDiscNum to disc number of trk
 		set artistSongs to (every track of library playlist 1 whose artist is masterArtist)
 		
 		set masterGenre to ""
@@ -94,16 +95,14 @@ repeat with currentAlbum in albumsNames
 		end repeat
 		
 		set masterTrackc to 0
-		if masterDiscc is 1 then
-			repeat with trk in albumSongs
-				if (disc number of trk) is 1 then
-					if (track count of trk) is greater than 0 then
-						set masterTrackc to track count of trk
-						exit repeat
-					end if
+		repeat with trk in albumSongs
+			if (disc number of trk) is equal to (masterDiscNum as integer) then
+				if (track count of trk) is greater than 0 then
+					set masterTrackc to track count of trk
+					exit repeat
 				end if
-			end repeat
-		end if
+			end if
+		end repeat
 		
 		set masterYear to 0
 		repeat with trk in albumSongs
@@ -241,7 +240,9 @@ repeat with currentAlbum in albumsNames
 				if masterDiscc is 1 then set disc number of trk to masterDiscc
 				
 				if masterTrackc is not 0 then
-					set track count of trk to masterTrackc
+					if disc number of trk is equal to (masterDiscNum as integer) then
+						set track count of trk to masterTrackc
+					end if
 				end if
 				
 				if masterYear is not 0 then set year of trk to masterYear
