@@ -1,5 +1,5 @@
 #!/usr/bin/env osascript
---version 1.2
+--version 1.3
 
 (* Options to change behavior of script *)
 
@@ -93,6 +93,19 @@ repeat with currentAlbum in albumsNames
 				exit repeat
 			end if
 		end repeat
+		
+		set DiskTrkList to {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+		
+		repeat with trk in albumSongs
+			if (disc number of trk) is greater than 0 and (track count of trk) is greater than 0 then
+				set trkDisk to (disc number of trk as integer)
+				set trkCount to (track count of trk as integer)
+				
+				set item trkDisk of DiskTrkList to trkCount
+			end if
+		end repeat
+		log DiskTrkList
+		
 		
 		set masterTrackc to 0
 		repeat with trk in albumSongs
@@ -236,15 +249,28 @@ repeat with currentAlbum in albumsNames
 					set tempFolder to ((((path to me) as text) & "::TempFolder") as alias)
 				end try
 				
+				-- set disc count to the master disc count if exists 
 				if masterDiscc is not 0 then set disc count of trk to masterDiscc
+				
+				-- if only one disk then set disc number to 1
 				if masterDiscc is 1 then set disc number of trk to masterDiscc
 				
-				if masterTrackc is not 0 then
-					if disc number of trk is equal to (masterDiscNum as integer) then
-						set track count of trk to masterTrackc
+				
+				-- make sure that we changed the 0 to disc num and not just addded one
+				if (count of DiskTrkList) is equal to 100 then
+					
+					-- change track count to that of the disk
+					if (disc number of trk) is not equal to 0 then
+						if track count of trk is not equal to (item (disc number of trk as integer) of DiskTrkList) then
+							log "Setting track count to " & (item (disc number of trk as integer) of DiskTrkList)
+							set track count of trk to (item (disc number of trk as integer) of DiskTrkList)
+						end if
 					end if
+					
 				end if
 				
+				
+				-- set year of trk to masterYear if exists
 				if masterYear is not 0 then set year of trk to masterYear
 				
 				
